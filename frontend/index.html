@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>🛡️ Fact Checker IA</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+/* 🌌 FOND GLOBAL */
+body {
+  min-height: 100vh;
+  background: linear-gradient(120deg, #0f172a, #1e293b, #020617);
+  background-size: 300% 300%;
+  animation: gradientMove 12s ease infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 🪟 CONTAINER GLASS */
+.container {
+  width: 100%;
+  max-width: 720px;
+  padding: 32px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  color: #e5e7eb;
+}
+
+/* 🧠 TITRE */
+h1 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 28px;
+}
+
+/* ✍️ INPUT */
+textarea {
+  width: 100%;
+  height: 110px;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #111827;
+}
+
+/* 🔘 BOUTON */
+button {
+  margin-top: 16px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* 📦 RÉSULTATS */
+.result {
+  margin-top: 28px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.85);
+  color: #111827;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+}
+
+.card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.card b {
+  color: #4338ca;
+}
+
+/* ⏳ LOADER */
+.loader {
+  text-align: center;
+  font-size: 18px;
+  color: #c7d2fe;
+  animation: pulse 1.2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+/* 🎯 VERDICTS */
+.verdict-vrai { color: #16a34a; font-weight: 700; }
+.verdict-faux { color: #dc2626; font-weight: 700; }
+.verdict-incertain { color: #f59e0b; font-weight: 700; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>🛡️ Fact Checker IA</h1>
+
+  <textarea id="claim" placeholder="Entrez une affirmation à vérifier..."></textarea>
+  <button onclick="check()">Vérifier l’affirmation</button>
+
+  <div id="output" class="result"></div>
+</div>
+
+<script>
+function createCard(content, delay = 0) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = content;
+  setTimeout(() => card.classList.add("show"), delay);
+  return card;
+}
+
+function verdictClass(v) {
+  v = v.toLowerCase();
+  if (v.includes("vrai")) return "verdict-vrai";
+  if (v.includes("faux")) return "verdict-faux";
+  return "verdict-incertain";
+}
+
+async function check() {
+  const text = document.getElementById("claim").value.trim();
+  const out = document.getElementById("output");
+  out.innerHTML = '<div class="loader">⏳ Analyse en cours...</div>';
+
+  if (!text) {
+    out.innerHTML = "";
+    out.appendChild(createCard("⚠️ Veuillez entrer une affirmation."));
+    return;
+  }
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/fact-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await res.json();
+    out.innerHTML = "";
+
+    if (data.error) {
+      out.appendChild(createCard("❌ " + data.error));
+      return;
+    }
+
+    let d = 0;
+    out.appendChild(createCard(`<b>🧠 Concepts :</b> ${data.concepts.join(", ")}`, d)); d += 200;
+    out.appendChild(createCard(`<b>⚖️ Analyse IA :</b><br>${data.analysis}`, d)); d += 200;
+    out.appendChild(createCard(
+      `<b>🧪 Résultat attendu :</b> <span class="${verdictClass(data.expected)}">${data.expected}</span>`,
+      d
+    )); d += 200;
+    out.appendChild(createCard(`<b>📚 Sources :</b> ${data.sources.join(", ")}`, d));
+
+  } catch (e) {
+    out.innerHTML = "";
+    out.appendChild(createCard("❌ Erreur serveur ou réseau."));
+  }
+}
+</script>
+
+</body>
+</html>

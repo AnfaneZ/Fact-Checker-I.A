@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+wikipedia-api
+cloudscraper
+ollama
+pydantic

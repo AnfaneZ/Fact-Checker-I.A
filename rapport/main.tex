@@ -1,0 +1,194 @@
+\documentclass[a4paper, 12pt, twoside]{article}
+\usepackage[utf8]{inputenc}		% LaTeX, comprend les accents !
+\usepackage[T1]{fontenc}		
+\usepackage[francais]{babel}
+\usepackage{lmodern}
+\usepackage{ae,aecompl}
+\usepackage[top=2.5cm, bottom=2cm, 
+			left=3cm, right=2.5cm,
+			headheight=15pt]{geometry}
+\usepackage{graphicx}
+\usepackage{eso-pic}	% Nécessaire pour mettre des images en arrière plan
+\usepackage{array} 
+\usepackage{hyperref}
+\input{pagedegarde}
+
+
+
+\title{Fact Checker I.A}
+\entreprise{Le nom de votre entreprise}
+\datedebut{20 septembre 2025}
+\datefin{6 janvier 2026}
+
+
+
+\membrea{AbdouSalami Anfane 44002921}
+\membreb{Jessen Mathis 44004518}
+\membrec{https://github.com/AnfaneZ/Fact-Checker-I.A}
+
+
+
+
+
+\begin{document}
+\pagedegarde
+\section*{Remerciements}
+Merci à ChatGPT Gemini et à François Delbot pour son idée projet !
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+\begin{figure}[h]
+\centering
+\includegraphics{Titre.png}
+\label{Tux}
+\end{figure}
+
+Avec la multiplication des informations disponibles sur Internet, il devient de plus en plus difficile de distinguer ce qui est vrai et ce qui ne l'est pas. Ce projet vise à proposer un outil de \cite{fact-checking} basé sur l’intelligence artificielle et les sites fiables, capable d’analyser une affirmation et d’en évaluer la véracité. L’objectif est également de comprendre pourquoi il est très compliqué de créer ce genre d'I.A, et d'essayer tout de même de se rapprocher de quelque chose de fonctionnel.
+
+
+
+
+
+\section{Environnement de travail}
+
+Nous avons effectuer la totalité du projet sur Visual Studio Code. Ainsi, afin de pouvoir tra-
+vailler correctement, nous avons dû installer un envrironnement Python sur ce dernier.
+Pour ce qui est de l’I.A utilisé pour nous assister, nous avons choisi ChatGPT car nous avons eu la chance de pouvoir nous payer ses fonctionnalité supérieur et donc cela était beaucoup plus pratique. Les codes venaient de ChatGPT mais les processus venait de nous car après de nombreuses tentatives, nous nous sommes rendus compte que les idées de ChatGPT étaient irréalisable, enfin du moins pour nous.\newline
+
+\section{Description du projet et objectifs}
+	\subsection{Description}
+
+Le projet consiste en un site web permettant à un utilisateur de soumettre une affirmation. Le processus se déroule en plusieurs étapes :
+
+- Extraction des concepts clés de l’affirmation grâce à des règles simples de traitement de texte.
+
+- Recherche encyclopédique sur Wikipédia pour obtenir une information fiable sur les concepts détectés.
+
+Analyse par deux modèles IA distincts :
+
+- Llama 3.1 : produit un raisonnement explicatif basé sur sa recherche
+
+- Mistral : fournit un verdict strict (VRAI, FAUX ou INCERTAIN)
+
+- Comparaison des résultats pour vérifier la cohérence des réponses.
+
+- Affichage des résultats sur le site web
+
+
+	\subsection{Objectif}
+
+L'objectif était de comprendre le monde derrière la recherche et le traitement de donnée d'une indormation ainsi que les défauts de cette recherche. On peut par exemple se rendre compte de la durée extrêmement élever lorsqu'il s'agit simplement de recherche d'information. Ce projet avait aussi pour objectif de comprendre pourquoi la recherche et le traitement d'une information peut-être biaisé, et que c'est une processus très complexe à mettre en place.  
+
+\section{Bibliothèques, Outils et technologies}
+Les principaux outils utilisés sont :
+
+ - Langage: Python 3.1 
+
+ - Backend: FastAPI pour exposer l’API et servir le site web
+ 
+ - Frontend : HTML pour l’interface utilisateur
+ 
+ - IA locale : Ollama ( llama3.1 et mistral )
+ 
+ - Gestion des dépendances : Environnement virtuel Python (venv)
+ 
+ - Sources encyclopédiques : Wikipédia via la bibliothèque wikipedia-api
+
+Pour les sources encyclopédiques, nous avons essayée d'utilisé des sites déjà sur internet via DuckDuckGo mais cela ne s'est pas pas passé comme prévu. Nous détaillerons cela utérieurement.
+
+\section{Travail réalisé}
+Anfane :
+J’ai réalisé une partie de fact-checking basé sur l'IA., qui recherche la véracité d'une information. Mon travail à permis de faire en sorte que l'I.A ne donne pas la réponse simplement avec ses connaissances, mais vérifie l'information sur une plateforme fiable.
+J’ai commencé par essayer de comprendre à l'aide de ChatGPT comment une I.A pourrait rechercher une affirmation sur Google dans un premier temps. Après quelques échanges, je me suis rendu compte que cela n'allais pas être aussi simple au vu de toute les contraintes rencontrer.
+
+Par exemple, le tout premier outil qu'il m'avait proposer était Google Fact Checking, une API de Google qui permet justement de vérifier la véracité d'une information. J'allais donc partir sur mon I.A qui appelle Google Fact Checking, puis renvois son résultat. Mais le problème était que l'implémentation de Google Fact Checking dans le code était très complexe, étant donnée que c'est un peu mal fait d'après ChatGPT donc j'ai essayer autre chose.
+
+Comme second idée, j'allais utiliser DuckDuckGo comme moteur de recherche afin que l'I.A recherche lui même l'information sur Google et détermine la réponse. Sauf qu'il semblerai qu'une I.A qui recherche une affirmation toute seule dans un navigateur ne soit pas très apprécier, car mon programme bloquait dû aux vérification captcha (anti-robot) des sites. J'ai compris par la suite que c'est vérification était pour éviter que des robots surchargent les sites.
+
+N'ayant plus aucun moyen, j'ai décider de faire appelle à la bibliothèque wikipedia directement depuis pyhton. Le problème étant que chaque recherche demande un très long moment avant d'aboutir, et que si l'affirmation n'est pas très précise, il le ne trouvera pas de réponse.
+De plus, il y avait un énorme problème lorsqu'on entrai une affirmation fausse. En effet, l'I.A ne voulais pas traiter cette affirmation car elle disait ne pas vouloir diffuser de mauvaises informations. Donv j'ai du faire en sorte de lui faire modifier l'affirmation pour que justement elle puissent elle-même l'a traiter sans blocage.\newline
+
+
+Mathis :
+J'ai réalisé pour ma part, la secdonde partie de fact-checking avec Mistral. L’objectif principal de ce modèle est de fournir un fact-checking strict, capable de répondre uniquement par VRAI, FAUX ou INCERTAIN, afin de compléter le premier modèle qui produit un raisonnement explicatif mais peut parfois se tromper ( surtout avec les affirmations qui varient avec le temps.
+
+    Le processus est le suivant, Mistral est appelé en local via Ollama. Le prompt a été conçu pour que l'I.A donne sa réponse à elle concernant l'affirmation, pour permettre d'avoir une comparaison avec la première I.A. Les résultats des deux modèles sont ensuite comparés pour détecter les concordances et les désaccords, offrant ainsi une double vérification fiable des informations.
+
+Plusieurs problèmes ont été rencontrées lors de l’implémentation : L’installation et la configuration des modèles IA locaux ont également demandé de comprendre la manière dont Ollama stocke et exécute les modèles. De plus les différences de comportement entre Llama 3.1 et Mistral ont nécessité la mise en place d’une logique de comparaison et de gestion des cas très complexe, par exemple, lorsque les informations sont insuffisantes, Mistral renvoie 'INCERTAIN', ou lorsque les concepts recherchés n’existent pas sur Wikipédia, cela le renvoie immédiatement. 
+
+Pour finir, nous nous sommes tout les deux occupés de la mise en place du site web sans trop de difficulté car les deux gros morceaux du projet étaient déjà réalisé.
+
+Grâce à cette implémentation, le projet bénéficie d’une double vérification combinant une explication détaillée et un verdict strict, ce qui améliore la fiabilité.
+
+\section{Difficultés rencontrées}
+
+Au cours du projet, nous avons fait face à de nombreuses difficulté qui ont pris beaucoup de notre temps :
+
+- Création et activation du venv sur Windows et Linux/macOS
+er
+
+- Téléchargement de Llama 3.1 et Mistral via Ollama
+
+- Vérification que les modèles fonctionnent correctement sur tous les systèmes
+
+- Automatisation de l’installation et du lancement
+
+
+- Affichage en temps réel des résultats des deux IA
+
+- Vérification que les résultats des IA correspondent aux informations de Wikipédia
+
+- Gestion des cas où aucune information encyclopédique n’est trouvé
+
+
+\section{Bilan}
+	\subsection{Conclusion}
+Ce projet a été très formateur et a permis de renforcer nos compétences dans plusieurs domaines.
+Tout d'abord la programmation Python via utilisation de bibliothèques comme fastapi, wikipedia-api et ollama.l'I.A avec la compréhension des modèles LLM, de leurs limites, et de la double vérification des réponses. Et pour finir, le plus important, la gestion de projet notemmant avec une structuration claire du projet, une automatisation des installations et compatibilité multi-OS au cas où on aimerait exécuter le projet en dehors de Linux.
+
+	\subsection{Perspectives}
+On pourrait faire en sorte que la recherche s'effectue directement sur les sites en essayer de trouver un moyen de passé cette vérfication anti-robot ou de faire en sorte que l'API de Google fonctionne. Nous avons aussi pensée à ajouter un historique des recherches avec les affirmations soumis à l'I.A. 
+	
+
+
+\newpage
+\section{Bibliographie}
+
+\renewcommand{\bibname}{}
+\renewcommand{\refname}{}
+\begin{thebibliography}{2}
+   \bibitem[label]{cle} Auteur, TITRE, editeur, annee
+   \bibitem[LAM94]{lam1} L. LAMPORT, {\it \LaTeX : A Document preparation system, Addison-Wesley, 1994}
+\end{thebibliography}
+
+\newpage
+\section{Webographie}
+\begin{thebibliography}{2}
+   \bibitem[Fact-Checking]{fact-checking} \url{https://github.com/AnfaneZ/Fact-Checker-I.A}
+\end{thebibliography}
+
+
+\newpage
+\section{Annexes}
+\appendix
+\makeatletter
+\def\@seccntformat#1{Annexe~\csname the#1\endcsname:\quad}
+\makeatother
+	\section{Exemple d'exécution du projet}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Interface.png}
+
+\end{figure}
+    \includegraphics[width=0.7\textwidth]{TestTerre.png}
+
+    \includegraphics[width=0.7\textwidth]{TestMacron.png}
+
+    \includegraphics[width=0.7\textwidth]{TestTrump.png}
+
+
+\end{document}
